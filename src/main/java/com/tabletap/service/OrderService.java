@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,6 +28,7 @@ public class OrderService {
     private final TableRepository    tableRepository;
     private final MenuItemRepository menuItemRepository;
     private final RealtimeService    realtimeService;
+    private final MenuService        menuService;
 
     private static final Map<Order.Status, Set<Order.Status>> TRANSITIONS = Map.of(
             Order.Status.PENDING,   EnumSet.of(Order.Status.CONFIRMED, Order.Status.PREPARING, Order.Status.CANCELLED),
@@ -59,6 +62,15 @@ public class OrderService {
         Order order = Order.builder().table(table).notes(request.notes())
                 .paymentMethod(pm).status(Order.Status.PENDING).build();
 
+        // Check stock availability
+        for (var item : request.items()) {
+            MenuItem mi = itemMap.get(item.menuItemId());
+            if (mi != null && mi.getQuantityAvailable() != null && mi.getQuantityAvailable() < item.quantity()) {
+                throw new ApiException(mi.getName() + " only has " + mi.getQuantityAvailable() + " left",
+                        "INSUFFICIENT_STOCK", 422);
+            }
+        }
+
         request.items().forEach(req -> {
             MenuItem mi = itemMap.get(req.menuItemId());
             order.addItem(OrderItem.builder().menuItem(mi).quantity(req.quantity())
@@ -66,6 +78,8 @@ public class OrderService {
         });
 
         Order saved = orderRepository.save(order);
+        // Decrement stock for tracked items
+        request.items().forEach(req -> menuService.decrementStock(req.menuItemId(), req.quantity()));
         log.info("Order placed: {} for table {}", saved.getId(), table.getNumber());
 
         Order withTotals = orderRepository.findByIdWithDetails(saved.getId()).orElseThrow();
@@ -123,6 +137,37 @@ public class OrderService {
                 orders.stream().filter(o -> o.getStatus() == Order.Status.READY).count(),
                 revenue
         );
+    }
+
+
+    @Transactional(readOnly = true)
+    public List<OrderResponse> getOrdersByDate(LocalDate date) {
+        Instant start = date.atStartOfDay(ZoneOffset.UTC).toInstant();
+        Instant end   = date.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+        return orderRepository.findByDateRangeWithDetails(start, end)
+                .stream().map(this::toResponse).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getRevenueByDate(int days) {
+        List<Map<String, Object>> result = new java.util.ArrayList<>();
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        for (int i = days - 1; i >= 0; i--) {
+            LocalDate date = today.minusDays(i);
+            Instant start = date.atStartOfDay(ZoneOffset.UTC).toInstant();
+            Instant end   = date.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+            List<Order> orders = orderRepository.findByCreatedAtBetween(start, end);
+            BigDecimal revenue = orders.stream()
+                    .filter(o -> o.getStatus() == Order.Status.SERVED || o.getStatus() == Order.Status.READY)
+                    .map(Order::getTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
+            long count = orders.size();
+            Map<String, Object> entry = new java.util.LinkedHashMap<>();
+            entry.put("date", date.toString());
+            entry.put("revenue", revenue);
+            entry.put("orders", count);
+            result.add(entry);
+        }
+        return result;
     }
 
     public OrderResponse toResponse(Order order) {
