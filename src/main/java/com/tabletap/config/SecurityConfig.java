@@ -26,21 +26,33 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(AbstractHttpConfigurer::disable)
-            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .cors(c -> c.configurationSource(corsConfigurationSource()))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/ws/**").permitAll()
-                .requestMatchers(HttpMethod.GET,  "/api/menu").permitAll()
-                .requestMatchers(HttpMethod.GET,  "/api/tables/validate").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/orders").permitAll()
-                .requestMatchers(HttpMethod.GET,  "/api/orders/*").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/waiter/calls").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/payments/intent").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/payments/webhook").permitAll()
-                .requestMatchers("/actuator/health").permitAll()
-                .anyRequest().authenticated()
-            );
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .cors(c -> c.configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(auth -> auth
+                        // WebSocket
+                        .requestMatchers("/ws/**").permitAll()
+                        // Menu
+                        .requestMatchers(HttpMethod.GET,    "/api/menu").permitAll()
+                        .requestMatchers(HttpMethod.GET,    "/api/menu/**").permitAll()
+                        // Tables
+                        .requestMatchers(HttpMethod.GET,    "/api/tables/**").permitAll()
+                        // Orders - customer + kitchen dashboard
+                        .requestMatchers(HttpMethod.POST,   "/api/orders").permitAll()
+                        .requestMatchers(HttpMethod.GET,    "/api/orders").permitAll()
+                        .requestMatchers(HttpMethod.GET,    "/api/orders/**").permitAll()
+                        .requestMatchers(HttpMethod.PATCH,  "/api/orders/**").permitAll()
+                        // Waiter calls
+                        .requestMatchers(HttpMethod.POST,   "/api/waiter/calls").permitAll()
+                        .requestMatchers(HttpMethod.GET,    "/api/waiter/calls/**").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/waiter/calls/**").permitAll()
+                        // Payments
+                        .requestMatchers(HttpMethod.POST,   "/api/payments/intent").permitAll()
+                        .requestMatchers(HttpMethod.POST,   "/api/payments/webhook").permitAll()
+                        // Health
+                        .requestMatchers("/actuator/health").permitAll()
+                        .anyRequest().authenticated()
+                );
         return http.build();
     }
 
@@ -48,7 +60,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(Arrays.asList(corsOrigins.split(",")));
-        config.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
