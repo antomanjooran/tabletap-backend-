@@ -25,6 +25,7 @@ public class OrderItem {
     @JoinColumn(name = "menu_item_id", nullable = false)
     private MenuItem menuItem;
 
+    @Builder.Default
     @Column(nullable = false)
     private Integer quantity = 1;
 
@@ -34,5 +35,6 @@ public class OrderItem {
     private String notes;
 
     @Column(name = "created_at", updatable = false)
+    @Builder.Default
     private Instant createdAt = Instant.now();
 }

@@ -34,16 +34,20 @@ public class MenuItem {
     @Column(name = "image_url")
     private String imageUrl;
 
+    @Builder.Default
     @Column(name = "is_available", nullable = false)
     private Boolean isAvailable = true;
 
+    @Builder.Default
     @Column(name = "sort_order")
     private Integer sortOrder = 0;
 
     @Column(name = "created_at", updatable = false)
+    @Builder.Default
     private Instant createdAt = Instant.now();
 
     @Column(name = "updated_at")
+    @Builder.Default
     private Instant updatedAt = Instant.now();
 
     @PreUpdate

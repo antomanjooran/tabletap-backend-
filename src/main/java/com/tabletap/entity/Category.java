@@ -20,9 +20,11 @@ public class Category {
     @Column(nullable = false)
     private String name;
 
+    @Builder.Default
     @Column(name = "sort_order")
     private Integer sortOrder = 0;
 
+    @Builder.Default
     @Column(name = "is_active")
     private Boolean isActive = true;
 

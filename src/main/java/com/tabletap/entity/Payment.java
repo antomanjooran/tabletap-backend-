@@ -30,6 +30,7 @@ public class Payment {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal amount;
 
+    @Builder.Default
     @Column(nullable = false)
     private String currency = "gbp";
 
@@ -37,5 +38,6 @@ public class Payment {
     private String status;
 
     @Column(name = "created_at", updatable = false)
+    @Builder.Default
     private Instant createdAt = Instant.now();
 }

@@ -16,7 +16,6 @@ import java.util.UUID;
 public class Order {
 
     public enum Status { PENDING, CONFIRMED, PREPARING, READY, SERVED, CANCELLED }
-    public enum PaymentMethod { CARD, APPLE_PAY, GOOGLE_PAY, CASH }
 
     @Id
     @UuidGenerator
@@ -27,39 +26,44 @@ public class Order {
     private RestaurantTable table;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "order_status", nullable = false)
+    @Column(name = "status", nullable = false)
+    @Builder.Default
     private Status status = Status.PENDING;
 
     private String notes;
 
     @Column(nullable = false, precision = 10, scale = 2)
+    @Builder.Default
     private BigDecimal subtotal = BigDecimal.ZERO;
 
     @Column(name = "service_charge", nullable = false, precision = 10, scale = 2)
+    @Builder.Default
     private BigDecimal serviceCharge = BigDecimal.ZERO;
 
     @Column(nullable = false, precision = 10, scale = 2)
+    @Builder.Default
     private BigDecimal total = BigDecimal.ZERO;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "payment_method", columnDefinition = "payment_method")
-    private PaymentMethod paymentMethod;
+    @Column(name = "payment_method")
+    private String paymentMethod;
 
-    @Builder.Default
     @Column(name = "payment_status", nullable = false)
+    @Builder.Default
     private String paymentStatus = "UNPAID";
 
     @Column(name = "stripe_payment_intent_id")
     private String stripePaymentIntentId;
 
-    @Builder.Default
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<OrderItem> items = new ArrayList<>();
 
     @Column(name = "created_at", updatable = false)
+    @Builder.Default
     private Instant createdAt = Instant.now();
 
     @Column(name = "updated_at")
+    @Builder.Default
     private Instant updatedAt = Instant.now();
 
     @PreUpdate

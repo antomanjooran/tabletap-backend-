@@ -20,6 +20,7 @@ public class WaiterCall {
     @JoinColumn(name = "table_id", nullable = false)
     private RestaurantTable table;
 
+    @Builder.Default
     private String message = "Waiter requested";
 
     @Builder.Default
@@ -27,6 +28,7 @@ public class WaiterCall {
     private Boolean isResolved = false;
 
     @Column(name = "created_at", updatable = false)
+    @Builder.Default
     private Instant createdAt = Instant.now();
 
     @Column(name = "resolved_at")

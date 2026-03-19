@@ -21,15 +21,18 @@ public class RestaurantTable {
 
     private String name;
 
+    @Builder.Default
     @Column(nullable = false)
     private Integer capacity = 4;
 
     @Column(name = "qr_token", nullable = false, unique = true)
     private String qrToken;
 
+    @Builder.Default
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
     @Column(name = "created_at", updatable = false)
+    @Builder.Default
     private Instant createdAt = Instant.now();
 }
