@@ -4,7 +4,7 @@ spring:
     name: tabletap-backend
 
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:postgres}?sslmode=require&pgbouncer=true
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:postgres}?sslmode=require&pgbouncer=true&prepareThreshold=0
     username: ${DB_USER:postgres}
     password: ${DB_PASSWORD:postgres}
     hikari:
@@ -21,6 +21,10 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          use_get_generated_keys: true
+        connection:
+          provider_disables_autocommit: false
 
   flyway:
     enabled: false
