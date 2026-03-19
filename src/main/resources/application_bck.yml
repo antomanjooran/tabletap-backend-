@@ -4,9 +4,9 @@ spring:
     name: tabletap-backend
 
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:postgres}?sslmode=require&pgbouncer=true&prepareThreshold=0
-    username: ${DB_USER:postgres}
-    password: ${DB_PASSWORD:postgres}
+    url: jdbc:postgresql://db.eucrcyvrtzxhztzcluju.supabase.co:5432/postgres?sslmode=require&prepareThreshold=0
+    username: postgres
+    password: "@nt0M@nj00r@n"
     hikari:
       maximum-pool-size: 5
       minimum-idle: 1
@@ -58,8 +58,3 @@ spring:
       on-profile: prod
   jpa:
     show-sql: false
-
-# Restaurant login (override these in Railway env vars)
-app:
-  restaurant-username: ${RESTAURANT_USERNAME:admin}
-  restaurant-password: ${RESTAURANT_PASSWORD:admin123}
