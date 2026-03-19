@@ -28,6 +28,8 @@ public class SecurityConfig {
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers(HttpMethod.POST,   "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET,    "/api/menu").permitAll()
+                        .requestMatchers(HttpMethod.GET,    "/api/menu/manage").hasRole("RESTAURANT")
+                        .requestMatchers(HttpMethod.GET,    "/api/menu/categories").hasRole("RESTAURANT")
                         .requestMatchers(HttpMethod.GET,    "/api/menu/**").permitAll()
                         .requestMatchers(HttpMethod.GET,    "/api/tables/**").permitAll()
                         .requestMatchers(HttpMethod.POST,   "/api/orders").permitAll()
