@@ -26,8 +26,8 @@ public class Category {
     @Column(name = "is_active")
     private Boolean isActive = true;
 
+    @Builder.Default
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy("sortOrder ASC")
-    @Builder.Default
     private List<MenuItem> menuItems = new ArrayList<>();
 }

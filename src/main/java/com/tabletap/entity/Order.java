@@ -45,14 +45,15 @@ public class Order {
     @Column(name = "payment_method", columnDefinition = "payment_method")
     private PaymentMethod paymentMethod;
 
+    @Builder.Default
     @Column(name = "payment_status", nullable = false)
     private String paymentStatus = "UNPAID";
 
     @Column(name = "stripe_payment_intent_id")
     private String stripePaymentIntentId;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
 
     @Column(name = "created_at", updatable = false)

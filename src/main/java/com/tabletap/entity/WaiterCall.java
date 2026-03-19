@@ -22,6 +22,7 @@ public class WaiterCall {
 
     private String message = "Waiter requested";
 
+    @Builder.Default
     @Column(name = "is_resolved", nullable = false)
     private Boolean isResolved = false;
 
