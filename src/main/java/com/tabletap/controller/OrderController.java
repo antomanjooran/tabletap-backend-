@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -39,8 +40,12 @@ public class OrderController {
     @PatchMapping("/{id}/status")
     public ResponseEntity<OrderResponse> updateStatus(
             @PathVariable UUID id,
-            @RequestBody StatusUpdateRequest body) {
-        Order.Status status = Order.Status.valueOf(body.status().toUpperCase());
+            @RequestBody Map<String, String> body) {
+        String statusStr = body.get("status");
+        if (statusStr == null || statusStr.isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+        Order.Status status = Order.Status.valueOf(statusStr.toUpperCase());
         return ResponseEntity.ok(orderService.updateStatus(id, status));
     }
 
@@ -48,6 +53,4 @@ public class OrderController {
     public ResponseEntity<DashboardStats> getTodayStats() {
         return ResponseEntity.ok(orderService.getTodayStats());
     }
-
-    public record StatusUpdateRequest(String status) {}
 }
