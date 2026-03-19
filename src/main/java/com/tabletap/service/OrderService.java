@@ -28,9 +28,9 @@ public class OrderService {
     private final RealtimeService    realtimeService;
 
     private static final Map<Order.Status, Set<Order.Status>> TRANSITIONS = Map.of(
-            Order.Status.PENDING,   EnumSet.of(Order.Status.CONFIRMED, Order.Status.CANCELLED),
-            Order.Status.CONFIRMED, EnumSet.of(Order.Status.PREPARING, Order.Status.CANCELLED),
-            Order.Status.PREPARING, EnumSet.of(Order.Status.READY),
+            Order.Status.PENDING,   EnumSet.of(Order.Status.CONFIRMED, Order.Status.PREPARING, Order.Status.CANCELLED),
+            Order.Status.CONFIRMED, EnumSet.of(Order.Status.CONFIRMED, Order.Status.PREPARING, Order.Status.CANCELLED),
+            Order.Status.PREPARING, EnumSet.of(Order.Status.READY, Order.Status.CANCELLED),
             Order.Status.READY,     EnumSet.of(Order.Status.SERVED),
             Order.Status.SERVED,    EnumSet.noneOf(Order.Status.class),
             Order.Status.CANCELLED, EnumSet.noneOf(Order.Status.class)
