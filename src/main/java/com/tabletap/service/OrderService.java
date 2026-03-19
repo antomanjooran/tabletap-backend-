@@ -28,12 +28,12 @@ public class OrderService {
     private final RealtimeService    realtimeService;
 
     private static final Map<Order.Status, Set<Order.Status>> TRANSITIONS = Map.of(
-        Order.Status.PENDING,   EnumSet.of(Order.Status.CONFIRMED, Order.Status.CANCELLED),
-        Order.Status.CONFIRMED, EnumSet.of(Order.Status.PREPARING, Order.Status.CANCELLED),
-        Order.Status.PREPARING, EnumSet.of(Order.Status.READY),
-        Order.Status.READY,     EnumSet.of(Order.Status.SERVED),
-        Order.Status.SERVED,    EnumSet.noneOf(Order.Status.class),
-        Order.Status.CANCELLED, EnumSet.noneOf(Order.Status.class)
+            Order.Status.PENDING,   EnumSet.of(Order.Status.CONFIRMED, Order.Status.CANCELLED),
+            Order.Status.CONFIRMED, EnumSet.of(Order.Status.PREPARING, Order.Status.CANCELLED),
+            Order.Status.PREPARING, EnumSet.of(Order.Status.READY),
+            Order.Status.READY,     EnumSet.of(Order.Status.SERVED),
+            Order.Status.SERVED,    EnumSet.noneOf(Order.Status.class),
+            Order.Status.CANCELLED, EnumSet.noneOf(Order.Status.class)
     );
 
     @Transactional
@@ -53,8 +53,8 @@ public class OrderService {
 
         Map<UUID, MenuItem> itemMap = menuItems.stream().collect(Collectors.toMap(MenuItem::getId, m -> m));
 
-        Order.PaymentMethod pm = request.paymentMethod() != null
-                ? Order.PaymentMethod.valueOf(request.paymentMethod().toUpperCase()) : null;
+        String pm = request.paymentMethod() != null
+                ? request.paymentMethod().toUpperCase() : null;
 
         Order order = Order.builder().table(table).notes(request.notes())
                 .paymentMethod(pm).status(Order.Status.PENDING).build();
@@ -116,27 +116,27 @@ public class OrderService {
                 .map(Order::getTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return new DashboardStats(
-            orders.size(),
-            orders.stream().filter(o -> o.getStatus() == Order.Status.SERVED).count(),
-            orders.stream().filter(o -> o.getStatus() == Order.Status.PENDING).count(),
-            orders.stream().filter(o -> o.getStatus() == Order.Status.PREPARING).count(),
-            orders.stream().filter(o -> o.getStatus() == Order.Status.READY).count(),
-            revenue
+                orders.size(),
+                orders.stream().filter(o -> o.getStatus() == Order.Status.SERVED).count(),
+                orders.stream().filter(o -> o.getStatus() == Order.Status.PENDING).count(),
+                orders.stream().filter(o -> o.getStatus() == Order.Status.PREPARING).count(),
+                orders.stream().filter(o -> o.getStatus() == Order.Status.READY).count(),
+                revenue
         );
     }
 
     public OrderResponse toResponse(Order order) {
         List<OrderItemResponse> items = order.getItems().stream()
                 .map(i -> new OrderItemResponse(i.getId(), i.getQuantity(), i.getUnitPrice(),
-                    i.getUnitPrice().multiply(BigDecimal.valueOf(i.getQuantity())), i.getNotes(),
-                    new MenuItemInfo(i.getMenuItem().getId(), i.getMenuItem().getName(), i.getMenuItem().getEmoji())))
+                        i.getUnitPrice().multiply(BigDecimal.valueOf(i.getQuantity())), i.getNotes(),
+                        new MenuItemInfo(i.getMenuItem().getId(), i.getMenuItem().getName(), i.getMenuItem().getEmoji())))
                 .toList();
 
         return new OrderResponse(order.getId(), order.getStatus().name(), order.getNotes(),
-            order.getSubtotal(), order.getServiceCharge(), order.getTotal(),
-            order.getPaymentMethod() != null ? order.getPaymentMethod().name() : null,
-            order.getPaymentStatus(),
-            new TableInfo(order.getTable().getId(), order.getTable().getNumber(), order.getTable().getName()),
-            items, order.getCreatedAt(), order.getUpdatedAt());
+                order.getSubtotal(), order.getServiceCharge(), order.getTotal(),
+                order.getPaymentMethod(),
+                order.getPaymentStatus(),
+                new TableInfo(order.getTable().getId(), order.getTable().getNumber(), order.getTable().getName()),
+                items, order.getCreatedAt(), order.getUpdatedAt());
     }
 }
