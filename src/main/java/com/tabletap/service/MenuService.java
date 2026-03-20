@@ -27,15 +27,6 @@ public class MenuService {
     }
 
     @Transactional(readOnly = true)
-    public List<CategorySimpleResponse> getCategories() {
-        return categoryRepository.findAll().stream()
-                .filter(Category::getIsActive)
-                .sorted((a, b) -> Integer.compare(a.getSortOrder(), b.getSortOrder()))
-                .map(c -> new CategorySimpleResponse(c.getId(), c.getName()))
-                .toList();
-    }
-
-    @Transactional(readOnly = true)
     public List<MenuResponse> getAllMenuForManagement() {
         return categoryRepository.findAll().stream()
                 .filter(Category::getIsActive)

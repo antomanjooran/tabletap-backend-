@@ -30,12 +30,6 @@ public class MenuController {
         return ResponseEntity.ok(menuService.getAllMenuForManagement());
     }
 
-    /** Restaurant — category list for dropdowns */
-    @GetMapping("/categories")
-    public ResponseEntity<List<CategorySimpleResponse>> getCategories() {
-        return ResponseEntity.ok(menuService.getCategories());
-    }
-
     @PatchMapping("/{id}/availability")
     public ResponseEntity<Void> setAvailability(@PathVariable UUID id,
                                                 @RequestBody UpdateAvailabilityRequest req) {
